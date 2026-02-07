@@ -1,0 +1,31 @@
+[package]
+name = "hearth"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = { version = "0.7", features = ["macros", "multipart"] }
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-native-tls", "sqlite"] }
+askama = "0.12"
+askama_axum = "0.4"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0"
+hex = "0.4"
+base64 = "0.22"
+anyhow = "1.0"
+arti-client = { version = "0.26.0", features = ["tokio", "native-tls", "onion-service-service", "onion-service-client", "experimental-api"] }
+tor-rtcompat = "0.26.0"
+tor-hsservice = "0.26.0"
+tor-llcrypto = "0.26.0"
+tor-cell = "0.26.0"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+rand = "0.8"
+futures = "0.3"
+chrono = "0.4"
+tokio-util = { version = "0.7", features = ["compat"] }
+tower-http = { version = "0.5", features = ["fs"] }
+crypto_box = { version = "0.9.1", features = ["chacha20"] }
+chacha20poly1305 = "0.10.1"

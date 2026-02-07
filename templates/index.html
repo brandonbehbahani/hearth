@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEARTH</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <link rel="stylesheet" href="/assets/style.css">
+    <script>
+        let shouldAutoScroll = true;
+
+        function scrollToBottom() {
+            const feed = document.getElementById('message-feed');
+            if (feed && shouldAutoScroll) {
+                feed.scrollTop = feed.scrollHeight;
+            }
+        }
+
+        document.addEventListener('htmx:beforeSwap', function (evt) {
+            if (evt.detail.target.id === 'message-feed') {
+                const feed = document.getElementById('message-feed');
+                if (feed) {
+                    // Check if user is near bottom (within 100px)
+                    const distanceFromBottom = feed.scrollHeight - feed.scrollTop - feed.clientHeight;
+                    shouldAutoScroll = distanceFromBottom < 100;
+                }
+            }
+        });
+
+        document.addEventListener('htmx:afterSettle', function (evt) {
+            if (evt.detail.target.id === 'message-feed') {
+                scrollToBottom();
+                // Second pass to catch slow-loading images
+                if (shouldAutoScroll) {
+                    setTimeout(scrollToBottom, 50);
+                    setTimeout(scrollToBottom, 200);
+                }
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <header>
+        <h1>Hearth</h1>
+        <div id="status">{{ onion_address }}</div>
+    </header>
+
+    <main>
+        <section id="sidebar">
+            <div class="sidebar-section">
+                <h2>Peers</h2>
+                <div id="peer-list" hx-get="/peer-list" hx-trigger="load, every 5s">
+                    {% for peer in peers %}
+                    <div class="peer-item" title="{{ peer.onion_address }}">
+                        <span class="peer-nick">{{ peer.nickname }}</span>
+                        <span class="peer-status">●</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h2>Connect</h2>
+                <form hx-post="/connect" hx-target="#peer-list" hx-swap="innerHTML" hx-on::after-request="this.reset()">
+                    <div class="input-group">
+                        <label>Nick</label>
+                        <input type="text" name="nickname" placeholder="PEER_ID" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Address</label>
+                        <input type="text" name="onion_address" placeholder="ONION_ADDR" required>
+                    </div>
+                    <button type="submit" class="sidebar-btn">Link</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="chat-container">
+            <div id="message-feed" hx-get="/messages" hx-trigger="load, every 2s" hx-swap="innerHTML">
+                <div class="message" style="color: #666;">
+                    <span class="user">SYSTEM</span>
+                    <span class="text">Connecting to network...</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <form id="chat-form" hx-post="/send" hx-swap="none" hx-on::after-request="this.reset()"
+            enctype="multipart/form-data">
+            <input type="text" name="content" placeholder="Type a message..." autocomplete="off" autofocus>
+
+            <label class="file-upload-label" for="attachment" title="Attach Image">
+                📎
+                <input type="file" name="attachment" id="attachment" accept="image/*">
+            </label>
+
+            <button type="submit">Send</button>
+        </form>
+    </footer>
+
+    <!-- Lightbox Container -->
+    <div id="lightbox">
+        <img id="lightbox-img" src="" alt="Full size image">
+    </div>
+
+    <script>
+        // Lightbox Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+
+            // Delegate click for dynamically loaded images
+            document.body.addEventListener('click', (e) => {
+                if (e.target.tagName === 'IMG' && e.target.closest('.message')) {
+                    lightboxImg.src = e.target.src;
+                    lightbox.style.display = 'flex';
+                }
+            });
+
+            // Close lightbox on click
+            lightbox.addEventListener('click', () => {
+                lightbox.style.display = 'none';
+                lightboxImg.src = ''; // Clear source
+            });
+        });
+    </script>
+</body>
+
+</html>

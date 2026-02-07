@@ -1,0 +1,10 @@
+/target
+/chat.db
+/encryption.key
+/identity.key
+/check_error.txt
+/errors.txt
+**/*.db
+**/*.db-shm
+**/*.db-wal
+

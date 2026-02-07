@@ -1,0 +1,279 @@
+:root {
+    --bg: #000000;
+    --fg: #ffffff;
+    --accent: #ffffff;
+    --border: #ffffff;
+    --sidebar-width: 280px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg);
+    color: var(--fg);
+    font-family: 'Courier New', Courier, monospace;
+    margin: 0;
+    padding: 0;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+header {
+    border-bottom: 2px solid var(--border);
+    padding: 1rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    letter-spacing: -1px;
+}
+
+main {
+    display: flex;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+#sidebar {
+    width: var(--sidebar-width);
+    border-right: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 1.5rem;
+    overflow-y: auto;
+}
+
+.sidebar-section h2 {
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+#chat-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+#message-feed {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    /* justify-content: flex-end; Removed to ensure natural scroll behavior */
+}
+
+.message {
+    border-top: 1px solid #333;
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+}
+
+.message:hover {
+    background-color: #111;
+}
+
+.message img {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border: 1px solid var(--accent);
+    margin-top: 10px;
+    display: block;
+}
+
+.peer-message {
+    color: #afceff;
+}
+
+.peer-message .user {
+    color: #5da3ff;
+}
+
+.message .user {
+    font-weight: bold;
+    text-transform: uppercase;
+    min-width: 80px;
+}
+
+.peer-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border: 1px solid #333;
+    margin-bottom: 0.5rem;
+    cursor: help;
+}
+
+.peer-item:hover {
+    border-color: var(--border);
+}
+
+.peer-status {
+    color: #0f0;
+    font-size: 0.8rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+input[type="text"] {
+    background: transparent;
+    border: 1px solid #333;
+    color: var(--fg);
+    font-family: inherit;
+    padding: 0.5rem;
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: var(--border);
+}
+
+.sidebar-btn {
+    width: 100%;
+    padding: 0.5rem;
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+footer {
+    border-top: 2px solid var(--border);
+    padding: 0;
+}
+
+#chat-form {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    /* Better alignment */
+}
+
+#chat-form input[type="text"] {
+    flex-grow: 1;
+    border: none;
+    padding: 1rem;
+    font-size: 1rem;
+    border-right: 2px solid var(--border);
+}
+
+#chat-form button {
+    background: var(--fg);
+    color: var(--bg);
+    border: none;
+    padding: 0 2rem;
+    font-family: inherit;
+    font-weight: bold;
+    text-transform: uppercase;
+    cursor: pointer;
+    height: 100%;
+    /* Ensure it fills height */
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    background: var(--bg);
+    border-left: 1px solid #333;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+}
+
+/* Ensure independent scroll containers are constrained */
+#sidebar,
+#message-feed {
+    height: 100%;
+}
+
+/* File Input Styling (Digital Brutalism) */
+input[type="file"] {
+    display: none;
+    /* Hide default file input */
+}
+
+.file-upload-label {
+    cursor: pointer;
+    padding: 1rem;
+    border-right: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: background-color 0.2s;
+}
+
+.file-upload-label:hover {
+    background-color: #111;
+}
+
+.file-upload-label span {
+    display: none;
+    /* Hide text on small screens if needed, or just use icon */
+}
+
+/* Add a visual indicator when file is selected via JS later if desired */
+
+/* Lightbox Styles */
+#lightbox {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+}
+
+#lightbox img {
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#lightbox:target {
+    display: flex;
+}
+
+/* Ensure message images have a pointer cursor */
+.message img {
+    cursor: zoom-in;
+}

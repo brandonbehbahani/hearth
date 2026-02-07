@@ -1,0 +1,11 @@
+{% for message in messages %}
+<div class="message {% if message.sender_name != " YOU" %}peer-message{% endif %}">
+    <span class="user">{{ message.sender_name }}</span>
+    <span class="timestamp" style="font-size: 0.7rem; color: #666;">{{ message.timestamp }}</span>
+    <div class="text">{% if message.is_encrypted %}🔒 {% endif %}{{ message.content }}</div>
+    {% if message.file_data.is_some() %}
+    <img src="data:image/jpeg;base64,{{ message.file_data_base64_helper() }}"
+        alt="{{ message.file_name.as_deref().unwrap_or(" Attachment") }}">
+    {% endif %}
+</div>
+{% endfor %}
