@@ -517,8 +517,7 @@ async fn connect_peer(
     let onion_addr = payload.onion_address.trim();
     let nick = payload.nickname.trim();
 
-    // Basic onion address validation (Tor v3 addresses are 56 chars + .onion)
-    let is_valid_onion = onion_addr.ends_with(".onion") && (onion_addr.len() == 62 || onion_addr.len() == 56 + 6);
+    let is_valid_onion = is_valid_onion_address(onion_addr);
     
     if !nick.is_empty() && is_valid_onion {
         let _ = sqlx::query("INSERT OR IGNORE INTO peers (nickname, onion_address) VALUES (?, ?)")
@@ -531,6 +530,20 @@ async fn connect_peer(
     }
     
     get_peer_list(State(state)).await
+}
+
+/// Tor v3 onion address check: exactly 56 base32 characters (`a-z`, `2-7`,
+/// either case) followed by `.onion`.
+fn is_valid_onion_address(addr: &str) -> bool {
+    match addr.strip_suffix(".onion") {
+        Some(host) => {
+            host.len() == 56
+                && host
+                    .bytes()
+                    .all(|b| matches!(b.to_ascii_lowercase(), b'a'..=b'z' | b'2'..=b'7'))
+        }
+        None => false,
+    }
 }
 
 async fn delete_peer(
@@ -858,4 +871,39 @@ async fn sync_messages(
     };
 
     axum::Json(response_payload)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_valid_onion_address;
+
+    // 56 base32 chars, the length of a real Tor v3 onion host.
+    const HOST: &str = "pg6mmjiyjmcrsslvykfwnntlaru7p5svn6y2ymmju6nubxndf4pscryd";
+
+    #[test]
+    fn accepts_v3_address() {
+        assert_eq!(HOST.len(), 56);
+        assert!(is_valid_onion_address(&format!("{HOST}.onion")));
+        assert!(is_valid_onion_address(&format!("{}.onion", HOST.to_uppercase())));
+    }
+
+    #[test]
+    fn rejects_wrong_length_or_suffix() {
+        assert!(!is_valid_onion_address(""));
+        assert!(!is_valid_onion_address(".onion"));
+        assert!(!is_valid_onion_address(HOST));
+        assert!(!is_valid_onion_address(&format!("{}.onion", &HOST[..16]))); // v2-length
+        assert!(!is_valid_onion_address(&format!("{HOST}a.onion")));
+        assert!(!is_valid_onion_address(&format!("{HOST}.com")));
+    }
+
+    #[test]
+    fn rejects_non_base32_characters() {
+        // '0', '1', '8', '9' are not base32; neither are symbols or spaces.
+        for bad in ['0', '1', '8', '9', '!', ' ', '/', '.', '-'] {
+            let mut host: String = HOST[..55].to_string();
+            host.push(bad);
+            assert!(!is_valid_onion_address(&format!("{host}.onion")), "accepted {bad:?}");
+        }
+    }
 }
